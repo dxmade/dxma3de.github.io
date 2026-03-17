@@ -3,107 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DXSHOP iOS 26</title>
+    <title>DXSHOP ESCROW</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        :root { --ios-blue: #007AFF; --ios-bg: #f2f2f7; }
-        body { font-family: -apple-system, system-ui; background: var(--ios-bg); color: #000; transition: all 0.3s ease; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3); }
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .ios-card { border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .ios-btn:active { transform: scale(0.92); transition: 0.1s; }
+        :root { --glass: rgba(255, 255, 255, 0.08); --accent: #007AFF; }
+        body { background: #000; color: #fff; font-family: -apple-system, sans-serif; overflow-x: hidden; }
+        .ios-blur { background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.1); }
+        .ios-card { border-radius: 30px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .ios-card:active { transform: scale(0.96); opacity: 0.8; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeInUp 0.5s; }
+        .nav-active { color: var(--accent); transform: translateY(-5px); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 12px; color: white; outline: none; }
     </style>
 </head>
-<body class="pb-24">
+<body class="p-4 pb-32">
 
-    <div class="sticky top-0 z-50 glass p-6 pb-4 rounded-b-[30px] mb-4">
-        <h1 id="tab-title" class="text-3xl font-bold tracking-tight">Главная</h1>
+    <div class="flex justify-between items-center mb-8 mt-4 animate__animated animate__fadeIn">
+        <h1 id="header-title" class="text-4xl font-black tracking-tighter">DXSHOP</h1>
+        <div id="status-dot" class="w-3 h-3 bg-green-500 rounded-full shadow-[0_0_15px_#22c55e]"></div>
     </div>
 
-    <div id="home" class="tab-content active px-4">
-        <div class="ios-card glass p-6 mb-6">
-            <div class="flex items-center gap-4">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">DX</div>
+    <div id="home" class="tab-content active">
+        <div class="ios-blur ios-card p-6 mb-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-3xl"></div>
+            <p class="text-gray-400 text-xs uppercase tracking-widest mb-1">Ваш баланс</p>
+            <h2 class="text-5xl font-bold mb-4">0.00 <span class="text-2xl text-blue-500">$</span></h2>
+            <div class="flex gap-2">
+                <button onclick="switchTab('deals')" class="bg-white text-black px-4 py-2 rounded-full text-sm font-bold">Сделки</button>
+                <button onclick="tg.showAlert('Пополнение через бота')" class="ios-blur px-4 py-2 rounded-full text-sm font-bold">Пополнить</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4">
+            <div onclick="openModal('deal-modal')" class="ios-blur ios-card p-5 flex items-center gap-4 border-l-4 border-blue-500">
+                <span class="text-3xl">🤝</span>
                 <div>
-                    <h2 class="text-xl font-bold" id="user-name">User</h2>
-                    <p class="text-gray-500 text-sm">Статус: <span class="text-green-500 font-medium">Verified</span></p>
+                    <p class="font-bold">Создать сделку</p>
+                    <p class="text-xs text-gray-400">Гарант подключится сразу</p>
+                </div>
+            </div>
+            <div onclick="openModal('review-modal')" class="ios-blur ios-card p-5 flex items-center gap-4 border-l-4 border-purple-500">
+                <span class="text-3xl">⭐</span>
+                <div>
+                    <p class="font-bold">Оставить отзыв</p>
+                    <p class="text-xs text-gray-400">Поделитесь опытом</p>
                 </div>
             </div>
         </div>
-        
-        <div class="grid grid-cols-1 gap-4">
-            <button onclick="sendAction('create_deal')" class="ios-btn ios-card bg-white p-6 flex items-center justify-between">
-                <span class="text-lg font-semibold text-blue-600">📦 Новая сделка</span>
-                <span class="text-gray-300">→</span>
-            </button>
-            <button onclick="sendAction('write_review')" class="ios-btn ios-card bg-white p-6 flex items-center justify-between">
-                <span class="text-lg font-semibold text-purple-600">✍️ Оставить отзыв</span>
-                <span class="text-gray-300">→</span>
-            </button>
+    </div>
+
+    <div id="deals" class="tab-content">
+        <div id="deal-list" class="space-y-4">
+            <div class="text-center text-gray-500 mt-20">Активных сделок нет</div>
         </div>
     </div>
 
-    <div id="deals" class="tab-content px-4">
-        <div class="text-center py-20 text-gray-400">
-            <p class="text-5xl mb-4">📂</p>
-            <p>У вас пока нет активных сделок</p>
-        </div>
-    </div>
-
-    <div id="profile" class="tab-content px-4">
-        <div class="ios-card bg-white p-6 text-center">
-            <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 border-4 border-blue-100 overflow-hidden">
-                <img id="p-avatar" src="" alt="">
+    <div id="profile" class="tab-content">
+        <div class="ios-blur ios-card p-8 text-center mb-6">
+            <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 mx-auto mb-4 p-1 shadow-2xl">
+                <div class="w-full h-full rounded-full bg-black flex items-center justify-center text-3xl" id="prof-char">D</div>
             </div>
-            <h2 class="text-2xl font-bold" id="p-name">Name</h2>
-            <div class="flex justify-center gap-1 my-2 text-yellow-400">⭐⭐⭐⭐⭐</div>
-            <p class="text-gray-400 text-sm">ID: <span id="p-id">000</span></p>
+            <h2 class="text-2xl font-bold" id="prof-name text-white">User</h2>
+            <div class="flex justify-center gap-1 my-3 text-yellow-400">⭐⭐⭐⭐⭐</div>
+            <p class="text-xs text-gray-500 mb-4" id="prof-id">ID: 000000</p>
+            <button onclick="sendAction('edit_profile')" class="text-xs text-blue-500 uppercase font-bold tracking-widest">Изменить профиль</button>
         </div>
-        <button onclick="sendAction('open_admin')" id="admin-p" class="hidden w-full mt-6 py-4 bg-black text-white rounded-2xl font-bold ios-btn">ADMIN PANEL ⚡️</button>
     </div>
 
-    <div class="fixed bottom-6 left-4 right-4 h-20 glass rounded-[35px] flex items-center justify-around px-4 shadow-2xl">
-        <button onclick="switchTab('home', 'Главная')" class="ios-btn flex flex-col items-center gap-1">
-            <span class="text-2xl">🏠</span>
-            <span class="text-[10px] font-medium">Главная</span>
+    <div id="deal-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl hidden p-6 flex flex-col justify-center animate__animated animate__fadeIn">
+        <h2 class="text-3xl font-bold mb-6 text-center">Новая сделка</h2>
+        <input type="text" id="deal-opp" placeholder="ID или ник продавца" class="mb-4">
+        <input type="number" id="deal-sum" placeholder="Сумма сделки ($)" class="mb-6">
+        <button onclick="confirmDeal()" class="bg-blue-600 p-4 rounded-2xl font-bold mb-3">СОЗДАТЬ СДЕЛКУ ⚡️</button>
+        <button onclick="closeModal('deal-modal')" class="text-gray-500">Отмена</button>
+    </div>
+
+    <div class="fixed bottom-8 left-6 right-6 h-20 ios-blur rounded-[40px] flex items-center justify-around px-8 shadow-2xl">
+        <button onclick="switchTab('home')" class="nav-item flex flex-col items-center gap-1 nav-active">
+            <span class="text-2xl">💎</span>
         </button>
-        <button onclick="switchTab('deals', 'Сделки')" class="ios-btn flex flex-col items-center gap-1">
+        <button onclick="switchTab('deals')" class="nav-item flex flex-col items-center gap-1 text-gray-500">
             <span class="text-2xl">💼</span>
-            <span class="text-[10px] font-medium">Сделки</span>
         </button>
-        <button onclick="switchTab('profile', 'Профиль')" class="ios-btn flex flex-col items-center gap-1">
+        <button onclick="switchTab('profile')" class="nav-item flex flex-col items-center gap-1 text-gray-500">
             <span class="text-2xl">👤</span>
-            <span class="text-[10px] font-medium">Профиль</span>
         </button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.HapticFeedback.impactOccurred('light');
+        tg.headerColor = '#000000';
 
-        function switchTab(tabId, title) {
+        function switchTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.getElementById('tab-title').innerText = title;
+            document.getElementById(id).classList.add('active');
             tg.HapticFeedback.selectionChanged();
         }
 
-        function sendAction(type) {
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
             tg.HapticFeedback.impactOccurred('medium');
-            tg.sendData(JSON.stringify({ action: type, user_id: tg.initDataUnsafe.user?.id }));
         }
 
-        // Заполнение данных
-        const user = tg.initDataUnsafe?.user;
-        if(user) {
-            document.getElementById('user-name').innerText = user.first_name;
-            document.getElementById('p-name').innerText = user.first_name;
-            document.getElementById('p-id').innerText = user.id;
-            if(user.id === 8166820778) document.getElementById('admin-p').classList.remove('hidden');
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function confirmDeal() {
+            const opp = document.getElementById('deal-opp').value;
+            const sum = document.getElementById('deal-sum').value;
+            if(!opp || !sum) return tg.showAlert("Заполните все поля");
+            
+            tg.sendData(JSON.stringify({
+                action: "new_deal",
+                opponent: opp,
+                amount: sum
+            }));
+            tg.close();
+        }
+
+        function sendAction(type) {
+            tg.sendData(JSON.stringify({ action: type }));
+        }
+
+        // Init user
+        const u = tg.initDataUnsafe?.user;
+        if(u) {
+            document.getElementById('prof-name').innerText = u.first_name;
+            document.getElementById('prof-char').innerText = u.first_name[0];
+            document.getElementById('prof-id').innerText = "ID: " + u.id;
         }
     </script>
 </body>
